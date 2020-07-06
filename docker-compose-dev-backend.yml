@@ -61,6 +61,14 @@ services:
 # vitruvian setup end
 # =================================================
 
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./vitruvian:/usr/src/app/
+      - ./log:/var/log/nginx
 
 networks:
   davinci:
