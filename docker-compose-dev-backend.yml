@@ -1,0 +1,69 @@
+# docker compose file of davinci project
+version: "3.6"
+services:
+# =================================================
+# vitruvian setup begin
+  vitruvian-db:
+    restart: always
+    image: postgres:11.5-alpine
+    env_file:
+      - ./env/.dev
+      - ./env/.vitruvian_conf
+    networks:
+      - davinci
+    ports:
+      - "5432:5432"
+    volumes:
+      - vitruvian-data:/var/lib/postgresql/data
+  vitruvian:
+    restart: always
+    # TODO: need to change to the gcp private docker hub
+    image: vitruvian:latest
+    build: ./vitruvian
+    env_file:
+      - ./env/.dev
+      - ./env/.vitruvian_conf
+    networks:
+      - davinci
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./vitruvian:/usr/src/app/
+    depends_on:
+      - vitruvian-db
+      - vitruvian-redis
+      - vitruvian-rabbitmq
+    command: >
+      bash -c "python manage.py runserver 0.0.0.0:8000"
+      bash -c "pip install ipython"
+  vitruvian-rabbitmq:
+    restart: always
+    image: rabbitmq:3.6.11-management-alpine
+    env_file:
+      - ./env/.dev
+      - ./env/.vitruvian_conf
+    networks:
+      - davinci
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  vitruvian-redis:
+    restart: always
+    image: redis:4.0.1-alpine
+    networks:
+      - davinci
+    ports:
+      - "6379:6379"
+    volumes:
+      - vitruvian-redis-data:/data
+# vitruvian setup end
+# =================================================
+
+
+networks:
+  davinci:
+    driver: bridge
+
+volumes:
+  vitruvian-data: # vitruvian db
+  vitruvian-redis-data: # vitruvian cache
