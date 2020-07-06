@@ -33,9 +33,11 @@ services:
       - vitruvian-db
       - vitruvian-redis
       - vitruvian-rabbitmq
+    #command: >
+    #  bash -c "python manage.py runserver 0.0.0.0:8000"
+    #  bash -c "pip install ipython"
     command: >
-      bash -c "python manage.py runserver 0.0.0.0:8000"
-      bash -c "pip install ipython"
+       uwsgi --ini uwsgi.ini
   vitruvian-rabbitmq:
     restart: always
     image: rabbitmq:3.6.11-management-alpine
